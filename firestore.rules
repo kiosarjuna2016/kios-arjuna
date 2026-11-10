@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.uid == "8cPPHhc793PLQBvRT1s23j1odQt2";
+    }
+    match /products/{productId} {
+      allow read, create, update, delete: if isAdmin();
+    }
+    match /orders/{orderId} {
+      allow read, create, update, delete: if isAdmin();
+    }
+  }
+}
