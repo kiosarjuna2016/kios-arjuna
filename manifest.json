@@ -1,1 +1,24 @@
-{"name":"Kios Arjuna","short_name":"Kios Arjuna","start_url":"./index.html","scope":"./","display":"standalone","background_color":"#f2f6f3","theme_color":"#123b32"}
+
+{
+  "name": "Kios Arjuna",
+  "short_name": "Kios Arjuna",
+  "description": "Aplikasi Daftar Harga dan Persediaan Barang Kios Arjuna",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f0f5f3",
+  "theme_color": "#075b45",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
