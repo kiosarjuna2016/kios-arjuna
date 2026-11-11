@@ -29,11 +29,18 @@ KIOS ARJUNA</h1>Daftar Harga & Persediaan Barang</header><main>
 <div class="actions"><button id="saveOrder">Simpan Pesanan</button><button class="secondary" id="printOrder" disabled>Cetak Nota / PDF</button></div>
 <p class="note">Pesanan disimpan ke Firebase. Stok akan dikurangi setelah pesanan disimpan. Gunakan satu perangkat pengelola saat membuat pesanan.</p>
 </section><section class="panel hidden" id="receiptPrint"></section>
-<section class="panel no-print"><h2>Laporan</h2><div class="actions"><button id="csv">Unduh Excel (CSV)</button><button class="secondary" id="backup">Cadangkan JSON</button></div><p class="note">Untuk PDF pilih Cetak / PDF lalu “Simpan sebagai PDF”. CSV dapat dibuka di Excel. Cadangkan data secara berkala.</p></section></div></main>
+
+<section class="panel no-print">
+<h2>Riwayat Transaksi</h2>
+  <button type="button" id="historyBtn" class="secondary">Riwayat Transaksi</button>
+<div id="historyPanel" class="hidden"><h3>Riwayat Transaksi</h3><div id="historyList"></div></div>
+</section>
+  
+  <section class="panel no-print"><h2>Laporan</h2><div class="actions"><button id="csv">Unduh Excel (CSV)</button><button class="secondary" id="backup">Cadangkan JSON</button></div><p class="note">Untuk PDF pilih Cetak / PDF lalu “Simpan sebagai PDF”. CSV dapat dibuka di Excel. Cadangkan data secara berkala.</p></section></div></main>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
 import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
-import{initializeFirestore,persistentLocalCache,persistentMultipleTabManager,collection,doc,setDoc,deleteDoc,onSnapshot,serverTimestamp,writeBatch}from"https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+import{initializeFirestore,persistentLocalCache,persistentMultipleTabManager,collection,doc,setDoc,deleteDoc,onSnapshot,getDocs,serverTimestamp,writeBatch}from"https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 const config={apiKey:"AIzaSyBLPhTAUgM21URP4Za14F9EOlKvwq-oa38",authDomain:"kios-arjuna.firebaseapp.com",projectId:"kios-arjuna",storageBucket:"kios-arjuna.firebasestorage.app",messagingSenderId:"670222914543",appId:"1:670222914543:web:b87161251dd902174c5c1a",measurementId:"G-W3X1E6G5M7"};
 const app=initializeApp(config),auth=getAuth(app),db=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})}),$=x=>document.getElementById(x);
 let data=[],edit=null,unsubscribe=null,cart=[],lastOrder=null;const money=n=>"Rp"+Number(n||0).toLocaleString("id-ID");
@@ -57,7 +64,49 @@ $("clearCart").onclick=()=>{cart=[];drawCart();lastOrder=null;$("printOrder").di
 $("saveOrder").onclick=async()=>{if(!cart.length)return alert("Nota masih kosong");let customer=$("customer").value.trim()||"Pelanggan umum";for(let item of cart){let p=data.find(x=>x.id===item.id);if(!p||(+p.qty||0)<item.qty)return alert("Stok "+item.name+" tidak mencukupi")};let total=cart.reduce((a,x)=>a+x.qty*x.price,0),id="o"+Date.now(),order={orderNo:$("orderNo").value,customer,items:cart.map(x=>({...x})),total,createdAt:serverTimestamp(),createdBy:auth.currentUser.uid};try{let b=writeBatch(db);b.set(doc(db,"orders",id),order);for(let item of cart){let p=data.find(x=>x.id===item.id);b.update(doc(db,"products",item.id),{qty:(+p.qty||0)-item.qty,updatedAt:serverTimestamp(),updatedBy:auth.currentUser.uid})}await b.commit();lastOrder={...order,createdAt:new Date()};renderReceipt(lastOrder);$("printOrder").disabled=false;cart=[];drawCart();$("orderNo").value=newOrderNo();alert("Pesanan tersimpan. Stok telah diperbarui.");}catch(e){alert("Pesanan belum berhasil disimpan: "+e.message)}};
 function renderReceipt(o){$("receiptPrint").classList.remove("hidden");$("receiptPrint").innerHTML=`<div class="receipt" style="font-family:Arial,sans-serif;color:#123b32"><div style="text-align:center"><img src="./icon-192.png" alt="Logo Kios Arjuna" style="width:75px;height:75px;object-fit:contain"><h2 style="margin:4px 0;color:#123b32">KIOS ARJUNA</h2><p style="margin:2px 0;font-size:12px">Kampung Waibu, Distrik Salawati Tengah</p><p style="margin:2px 0;font-size:12px">Kabupaten Raja Ampat, Papua Barat Daya</p><h3 style="background:#123b32;color:white;padding:7px">NOTA PENJUALAN</h3></div><div>No. Nota: ${esc(o.orderNo)}</div><div>Tanggal: ${new Date().toLocaleString("id-ID")}</div><div>Kepada Yth: ${esc(o.customer)}</div><table style="width:100%;border-collapse:collapse;margin-top:10px"><thead><tr><th>No.</th><th>Jumlah</th><th>Nama Barang</th><th>Harga</th><th>Jumlah (Rp)</th></tr></thead><tbody>${o.items.map((x,i)=>`<tr><td>${i+1}</td><td>${x.qty} ${esc(x.unit)}</td><td>${esc(x.name)}</td><td>${money(x.price)}</td><td>${money(x.qty*x.price)}</td></tr>`).join("")}</tbody></table><div class="receipt-total"><span>TOTAL</span><span>${money(o.total)}</span></div><p style="text-align:center;margin-top:18px"><b>Terima Kasih</b><br>Atas Kunjungan dan Kepercayaannya</p><p style="text-align:right;margin-top:20px">Hormat Kami,<br><br><br>........................</p></div>`}
 $("printOrder").onclick=()=>{if(!lastOrder)return;document.body.classList.add("print-receipt");print();setTimeout(()=>{document.body.classList.remove("print-receipt");$("receiptPrint").classList.add("hidden")},800)};
-$("q").oninput=draw;$("print").onclick=()=>print();$("orderNo").value=newOrderNo();
+
+let riwayatPesanan = [];
+$("historyBtn").onclick = async () => {
+  const panel = $("historyPanel");
+  panel.classList.remove("hidden");
+  $("historyList").textContent = "Memuat riwayat transaksi...";
+  try {
+    if (!auth.currentUser) throw new Error("Silakan login kembali.");
+    const hasil = await getDocs(collection(db, "orders"));
+    riwayatPesanan = hasil.docs.map(d => ({id:d.id, ...d.data()}));
+    riwayatPesanan.sort((a,b) => {
+      const waktu = x => x.createdAt?.toMillis?.() || 0;
+      return waktu(b) - waktu(a);
+    });
+    if (!riwayatPesanan.length) {
+      $("historyList").textContent = "Belum ada transaksi.";
+      return;
+    }
+    $("historyList").innerHTML = riwayatPesanan.map((o,i) => `
+      <div style="padding:10px;border-bottom:1px solid #ddd">
+        <b>${esc(o.orderNo || "-")}</b><br>
+        Pelanggan: ${esc(o.customer || "-")}<br>
+        Total: ${money(o.total || 0)}<br>
+        <button type="button" class="secondary" data-cetak="${i}">
+          Cetak Ulang
+        </button>
+      </div>
+    `).join("");
+    $("historyList").querySelectorAll("[data-cetak]").forEach(btn => {
+      btn.onclick = () => {
+        const o = riwayatPesanan[Number(btn.dataset.cetak)];
+        if (!o || !Array.isArray(o.items)) return;
+        lastOrder = o;
+        renderReceipt(o);
+        $("printOrder").disabled = false;
+        $("printOrder").click();
+      };
+    });
+  } catch(e) {
+    $("historyList").textContent = "Gagal memuat riwayat: " + e.message;
+  }
+};
+  $("q").oninput=draw;$("print").onclick=()=>print();$("orderNo").value=newOrderNo();
 function dl(blob,n){let a=document.createElement("a"),u=URL.createObjectURL(blob);a.href=u;a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(u),1500)}
 $("csv").onclick=async()=>{try{let XLSX=await import("https://cdn.sheetjs.com/xlsx-0.20.3/package/xlsx.mjs");let rows=data.map(x=>({"Kode":x.code||"","Nama Barang":x.name||"","Kategori":x.category||"","Satuan":x.unit||"","Harga Beli":+x.buy||0,"Harga Jual":+x.sell||0,"Stok":+x.qty||0,"Batas Minimum":+x.min||0}));let ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Daftar Barang");XLSX.writeFile(wb,"daftar-harga-kios-arjuna.xlsx")}catch(e){alert("Ekspor Excel membutuhkan internet. Coba lagi saat online. "+e.message)}};$("backup").onclick=()=>dl(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),"cadangan-kios-arjuna.json");
 if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.warn));
