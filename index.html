@@ -11,7 +11,42 @@
   body.print-receipt #receiptPrint th, body.print-receipt #receiptPrint td { padding: 3px 2px !important; overflow-wrap: anywhere; }
   body.print-receipt #receiptPrint h2 { font-size: 20px !important; }
   }
-  </style></head><body><header><h1> <img src="./icon-192.png"
+  
+@media print {
+  @page {
+    size: 100mm 150mm;
+    margin: 0;
+  }
+  html, body {
+    width: 100mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body.print-receipt #receiptPrint {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100mm !important;
+    max-width: 100mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body.print-receipt #receiptPrint .receipt {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 4mm !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  body.print-receipt #receiptPrint table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed !important;
+  }
+  }
+</style></head><body><header><h1> <img src="./icon-192.png"
 alt="Kios Arjuna"
 style="width:42px;height:42px;object-fit:contain;vertical-align:middle;margin-right:8px;">
 KIOS ARJUNA</h1>Daftar Harga & Persediaan Barang</header><main>
