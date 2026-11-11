@@ -2,49 +2,53 @@
 <style>
 :root{--g:#123b32;--bg:#f2f6f3}*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px system-ui;color:#17231d}header{background:linear-gradient(120deg,#123b32,#28664f);color:white;padding:20px 16px}h1{margin:0}main{max-width:950px;margin:auto;padding:14px}.panel,.stat{background:white;border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:0 2px 9px #12251b0c}h2{font-size:17px;color:var(--g);margin:0 0 12px}.grid,.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.stats{grid-template-columns:repeat(3,1fr)}.stat b{display:block;font-size:18px;color:var(--g)}.stat span,label,.note{font-size:12px;color:#65736c}label{display:block;margin-bottom:4px}input,select{width:100%;padding:11px;border:1px solid #d5ded8;border-radius:9px;font:inherit}button{border:0;border-radius:9px;padding:11px 14px;font-weight:650;background:var(--g);color:white}button.secondary{background:#e8efeb;color:var(--g)}button.danger{background:#a83232}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.search{display:flex;gap:8px;margin-bottom:10px}.search input{flex:1}.tablewrap{overflow:auto}table{width:100%;min-width:690px;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid #edf0ee}th{background:#f8faf8;color:#65736c}.num{text-align:right;white-space:nowrap}.small{padding:6px 9px;font-size:12px;margin:2px}.hidden{display:none!important}.status{display:inline-block;background:#e4f3e9;color:#205d3b;border-radius:20px;padding:6px 9px;font-size:12px}.off{background:#fff0d7;color:#875500}.empty{text-align:center;padding:20px;color:#75827b}.receipt{max-width:420px;margin:auto;padding:18px;background:white;color:#111}.receipt h2,.receipt p{text-align:center}.receipt table{min-width:0;width:100%;font-size:12px}.receipt th,.receipt td{padding:6px 3px;border-bottom:1px dashed #aaa}.receipt .right{text-align:right}.receipt-total{display:flex;justify-content:space-between;font-weight:700;padding-top:12px}@media print{body.print-receipt *{visibility:hidden}body.print-receipt #receiptPrint,body.print-receipt #receiptPrint *{visibility:visible}body.print-receipt #receiptPrint{position:absolute;left:0;top:0;width:100%;box-shadow:none}}@media(max-width:560px){.grid{grid-template-columns:1fr 1fr}.stat{padding:10px}.stat b{font-size:15px}}@media print{header,.no-print,.stats{display:none!important}body{background:white}main{padding:0}.panel{box-shadow:none}table{min-width:0}}
 
-@page { size: 100mm 150mm; margin: 3mm; }
+@page {
+  size: 100mm 150mm;
+  margin: 0;
+}
 @media print {
-  html, body { width: 94mm !important; margin: 0 !important; padding: 0 !important; }
-  body.print-receipt #receiptPrint { position: static !important; width: 94mm !important; max-width: 94mm !important; margin: 0 !important; padding: 0 !important; }
-  body.print-receipt #receiptPrint .receipt { width: 94mm !important; max-width: 94mm !important; margin: 0 !important; padding: 2mm !important; box-sizing: border-box !important; font-size: 11px !important; }
-  body.print-receipt #receiptPrint table { width: 100% !important; min-width: 0 !important; table-layout: auto !important; font-size: 10px !important; }
-  body.print-receipt #receiptPrint th, body.print-receipt #receiptPrint td { padding: 3px 2px !important; overflow-wrap: anywhere; }
-  body.print-receipt #receiptPrint h2 { font-size: 20px !important; }
-  }
-  
-@media print {
-  @page {
-    size: 100mm 150mm;
-    margin: 0;
-  }
   html, body {
-    width: 100mm !important;
+    width: auto !important;
+    height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
+    overflow: visible !important;
   }
   body.print-receipt #receiptPrint {
-    position: fixed !important;
-    left: 0 !important;
+    display: block !important;
+    position: absolute !important;
     top: 0 !important;
+    left: 0 !important;
     width: 100mm !important;
-    max-width: 100mm !important;
+    max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
+    box-sizing: border-box !important;
   }
   body.print-receipt #receiptPrint .receipt {
     width: 100% !important;
-    max-width: 100% !important;
-    padding: 4mm !important;
+    max-width: none !important;
     margin: 0 !important;
+    padding: 4mm !important;
     box-sizing: border-box !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
+    font-size: 11px !important;
   }
   body.print-receipt #receiptPrint table {
     width: 100% !important;
     min-width: 0 !important;
     table-layout: fixed !important;
+    font-size: 10px !important;
   }
+  body.print-receipt #receiptPrint th,
+  body.print-receipt #receiptPrint td {
+    padding: 3px 2px !important;
+    overflow-wrap: anywhere;
+  }
+  body.print-receipt #receiptPrint .receipt {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
   }
 </style></head><body><header><h1> <img src="./icon-192.png"
 alt="Kios Arjuna"
